@@ -6,7 +6,6 @@ package main
 // 	"crypto/rand"
 // 	"crypto/sha1"
 // 	"encoding/base32"
-// 	"encoding/csv"
 // 	"encoding/pem"
 // 	"flag"
 // 	"fmt"
@@ -16,9 +15,7 @@ package main
 // 	"os"
 // 	"os/user"
 // 	"path"
-// 	"strings"
 // 	"syscall"
-// 	"time"
 
 // 	"golang.org/x/crypto/ssh/terminal"
 // )
@@ -28,28 +25,7 @@ package main
 // 	CONFIG_PEM   = ".config/gauth.pem"
 
 // 	HDR_PEM = "TOPT KEYFILE"
-
-// 	// formatting
-// 	HDR_ACCT = "account"
-// 	HDR_PREV = "prev"
-// 	HDR_NEXT = "next"
-// 	HDR_CURR = "curr"
-// 	HDR_FMT  = "%-10.10s | %-6s %-6s %-6s\n"
 // )
-
-// func TimeStamp() (int64, int) {
-// 	time := time.Now().Unix()
-// 	return time / 30, int(time % 30)
-// }
-
-// func normalizeSecret(sec string) string {
-// 	noPadding := strings.ToUpper(strings.Replace(sec, " ", "", -1))
-// 	padLength := 8 - (len(noPadding) % 8)
-// 	if padLength < 8 {
-// 		return noPadding + strings.Repeat("=", padLength)
-// 	}
-// 	return noPadding
-// }
 
 // func AuthCode(sec string, ts int64) (string, error) {
 // 	key, err := base32.StdEncoding.DecodeString(sec)
@@ -75,14 +51,6 @@ package main
 // 	trunc[0] &= 0x7F
 // 	res := new(big.Int).Mod(new(big.Int).SetBytes(trunc), big.NewInt(1000000))
 // 	return fmt.Sprintf("%06d", res), nil
-// }
-
-// func authCodeOrDie(sec string, ts int64) string {
-// 	str, e := AuthCode(sec, ts)
-// 	if e != nil {
-// 		log.Fatal(e)
-// 	}
-// 	return str
 // }
 
 // func askPassAndEncryptTotpFile(ofile, ifile string) (err error) {
@@ -197,17 +165,6 @@ package main
 // 		return
 // 	}
 
-// 	cfgReader := csv.NewReader(bytes.NewReader(cfgContent))
-// 	// Unix-style tabular
-// 	cfgReader.Comma = ':'
-
-// 	r, err = cfgReader.ReadAll()
-// 	if err != nil {
-// 		return
-// 	}
-
-// 	return
-
 // }
 
 // //
@@ -276,27 +233,16 @@ package main
 // 		os.Exit(1)
 // 	}
 
-// 	// currentTS, progress := TimeStamp()
-// 	// prevTS := currentTS - 1
-// 	// nextTS := currentTS + 1
+// 	currentTS, progress := TimeStamp()
+// 	prevTS := currentTS - 1
+// 	nextTS := currentTS + 1
 
-// 	// //fmt.Println("           prev   curr   next")
-// 	// //fmt.Printf("%-10.10s %-6s %-6s %-6s\n", "account", "prev", "curr", "next")
-// 	// fmt.Printf(HDR_FMT, HDR_ACCT, HDR_PREV, HDR_CURR, HDR_NEXT)
-// 	// fmt.Printf("-------------------------------\n")
-// 	// for _, record := range cfg {
-// 	// 	name := record[0]
-// 	// 	secret := normalizeSecret(record[1])
-// 	// 	prevToken := authCodeOrDie(secret, prevTS)
-// 	// 	currentToken := authCodeOrDie(secret, currentTS)
-// 	// 	nextToken := authCodeOrDie(secret, nextTS)
-// 	// 	//fmt.Printf("%-10.10s %-6s %-6s %-6s\n", name, prevToken, currentToken, nextToken)
-// 	// 	if len(sArgs) == 0 {
-// 	// 		fmt.Printf(HDR_FMT, name, prevToken, currentToken, nextToken)
-// 	// 	} else if strings.Contains(strings.ToLower(name), strings.ToLower(sArgs[0])) == true {
-// 	// 		fmt.Printf(HDR_FMT, name, prevToken, currentToken, nextToken)
-// 	// 	}
-// 	// }
-// 	// fmt.Printf("-------------------------------\n")
-// 	// fmt.Printf("[%-29s]\n", strings.Repeat("=", progress))
+// 	for _, record := range cfg {
+// 		name := record[0]
+// 		secret := normalizeSecret(record[1])
+// 		prevToken := authCodeOrDie(secret, prevTS)
+// 		currentToken := authCodeOrDie(secret, currentTS)
+// 		nextToken := authCodeOrDie(secret, nextTS)
+// 		fmt.Printf(HDR_FMT, name, prevToken, currentToken, nextToken)
+// 	}
 // }
