@@ -44,3 +44,19 @@ docker exec cleanup
         > otp # Uses keys from veracrypt volume to unlock encrypted files
         > password # to unlock the encrypted file with grypt
         ```
+
+
+
+# Encryption Mechanisms
+
+## AES-GCM-256/PEM
+Encrypted using AES-GCM-256/PEM with additionnal datas (to protect PEM headers) instead of Salted CBC-128
+
+`gauth -e` take the current ~/.config/gauth.csv and encrypts it to ~/.config/gauth.pem and remove the plaintext version.
+`gauth -d` if you need to peek/poke in your token file, then `gauth -e` again.
+
+gauth TOTP keyfile encryption uses:
+  - AEAD Authenticated Encryption Additionnal Data modes (protect the plaintext PEM headers)
+  - AES-GCM-256 authenticated encryption mode.
+  - 16K rounds PBKDF2 key derivation function with SHA3-256
+  - Crypto PRNG.
