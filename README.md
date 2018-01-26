@@ -46,6 +46,7 @@ A few `make` targets have been provided for convienance in building the docker c
       > Please enter the password to encrypt:
       > Re-type password:
       ```
+  - [ ] Add 1 unit test
   - [ ] More CLI flags:
     - [ ] Add verbose flag options
       * `--encrypt --decryptTemp --decryptForce --file --help`
@@ -66,4 +67,5 @@ A few `make` targets have been provided for convienance in building the docker c
       - [x] Bash/filesystem
       - [x] Docker/filesystem
       - [ ] Golang native hook
+
     
