@@ -60,3 +60,22 @@ gauth TOTP keyfile encryption uses:
   - AES-GCM-256 authenticated encryption mode.
   - 16K rounds PBKDF2 key derivation function with SHA3-256
   - Crypto PRNG.
+
+# TODO
+  * Implement Cleanup
+    - `-f` force flag ignores cleanup
+      - `-e -f`
+      - `-d -f`
+
+  * #Possible CLI flags
+    * file / path
+    * password
+    * keyfile
+    * crypto - method
+    * strength
+
+	* Usage examples:
+    * grcypt --encrypt -p password -f /path/to/file
+    * gcrypt --encrypt -f /path/to/file
+    * > Please enter the password to encrypt:
+    * > Re-type password:
