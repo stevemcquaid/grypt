@@ -1,5 +1,7 @@
 FROM golang:1.8.5-alpine3.6
 
+MAINTAINER Steve McQuaid <steve@stevemcquaid.com>
+
 RUN apk update && apk upgrade && \
     apk add --no-cache bash git
 
