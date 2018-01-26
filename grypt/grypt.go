@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	HDR_PEM = "TOPT KEYFILE"
+	HDR_PEM = "GRYPT MESSAGE"
 )
 
 func encrypt(file string, passwd []byte) (err error) {

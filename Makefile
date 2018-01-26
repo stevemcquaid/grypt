@@ -14,6 +14,11 @@ run:
 bash:
 	@bash -x scripts/bash.sh
 
+## Run example encryption task
+example:
+	@bash -x scripts/example.sh
+
+
 help:
 	@printf "Available targets:\n\n"
 	@awk '/^[a-zA-Z\-\_0-9%:\\]+:/ { \

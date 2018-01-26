@@ -1,4 +1,37 @@
-# grypt - Usage
+# grypt - Encryption Utility in Golang
+
+# Goals
+  * Protect secrets stored in public by providing easy-to-use strong encryption
+    * Used in place of, or in combination with, [Veracrypt](https://en.wikipedia.org/wiki/VeraCrypt)
+  * Other projects/utilities should be able to use this mechanism with minimal effort
+    * Should be able to invoke a single line during run script to allow this to work for other projects
+    
+      ```bash
+      grypt -d -p password -f /path/to/secret/file &    # Run grypt to decrypt the file and send it to background
+      GRYPT_PID=$!                                      # Get pid to be able to easily kill it later
+      myGreatProgram --config /path/to/secret/file      # Run my program using file now decrypted to plaintext
+      kill $GRYPT_PID                                   # Kill grypt to automatically re-encrypt the file
+      ```
+    * Integration points:
+        - [x] Bash/filesystem
+        - [ ] Docker/filesystem
+        - [ ] Golang hook
+    
+
+# Encryption Mechanisms
+
+## AES-GCM-256/PEM
+Encrypted using AES-GCM-256/PEM with additionnal datas (to protect PEM headers) instead of Salted CBC-128
+  - `grypt -e -f /path/to/secret` takes the plaintext file and encrypts it
+  - `grypt -d -f /path/to/secret` takes the encrypted file and decrypts it. When grypt is sigterm'd, the file will be read in, and re-encrypted using the same password
+  - `grypt -D -f /path/to/secret` takes the encrypted file and converts it into plain text
+
+Grypt encryption uses:
+  - AEAD Authenticated Encryption Additionnal Data modes (protect the plaintext PEM headers)
+  - AES-GCM-256 authenticated encryption mode.
+  - 16K rounds PBKDF2 key derivation function with SHA3-256
+  - Crypto PRNG.
+  
 
 # Overview of Task
 docker decrypt file
@@ -13,21 +46,6 @@ docker exec cleanup
     - delete the plaintext contents from the mounted volume
     - save the encrypted contents in the other mounted volume.
 
-# Task
-  * Inputs:
-    * keys || stdin password
-  * Output:
-    * decrypted secrets in volume
-  * Cleanup:
-    * re-encrypt secrets using inputs
-
-# Goals
-  * Used in place of veracrypt
-  * Other projects should be able to use this easily
-    * otp project migration to grypt should be nearly drop in
-        * (docker?)
-        * golang hook maybe?
-    * Should be able to invoke a single line to allow this to work in other projects?
 
 # Notes
   * otp project will use grypt under the hood, but will have config files based off veracrypt providing the keys
@@ -47,35 +65,19 @@ docker exec cleanup
 
 
 
-# Encryption Mechanisms
 
-## AES-GCM-256/PEM
-Encrypted using AES-GCM-256/PEM with additionnal datas (to protect PEM headers) instead of Salted CBC-128
-
-`gauth -e` take the current ~/.config/gauth.csv and encrypts it to ~/.config/gauth.pem and remove the plaintext version.
-`gauth -d` if you need to peek/poke in your token file, then `gauth -e` again.
-
-gauth TOTP keyfile encryption uses:
-  - AEAD Authenticated Encryption Additionnal Data modes (protect the plaintext PEM headers)
-  - AES-GCM-256 authenticated encryption mode.
-  - 16K rounds PBKDF2 key derivation function with SHA3-256
-  - Crypto PRNG.
 
 # TODO
-  * Implement Cleanup
-    - `-f` force flag ignores cleanup
-      - `-e -f`
-      - `-d -f`
-
-  * #Possible CLI flags
-    * file / path
-    * password
-    * keyfile
-    * crypto - method
-    * strength
-
-	* Usage examples:
-    * grcypt --encrypt -p password -f /path/to/file
-    * gcrypt --encrypt -f /path/to/file
-    * > Please enter the password to encrypt:
-    * > Re-type password:
+  - [ ] Implement Cleanup
+    * Should reencrypt if -d flag is given, not reencrypt if -D flag is given
+  - [ ] Assure great UX:
+    * `gcrypt --encrypt -f /path/to/file`
+    * `> Please enter the password to encrypt:`
+    * `> Re-type password:`
+  - [ ] More CLI flags:
+    - [ ] Add flag for inline password
+      * `grcypt --encrypt -k /path/to/keyfile -f /path/to/file`
+    - [ ] Add flag for inline keyfile
+      * `grcypt --encrypt -p password -f /path/to/file`
+    - [ ] Add flag for modifying crypto or method
+    - [ ] Add flag to change crypto strength

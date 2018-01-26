@@ -5,7 +5,7 @@ RUN apk update && apk upgrade && \
 
 WORKDIR /go/src/grypt
 
-COPY src/* .
+COPY grypt/ .
 
 RUN go-wrapper download   # "go get -d -v ./..."
 RUN go-wrapper install    # "go install -v ./..."

@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/golang/glog"
 	"golang.org/x/crypto/ssh/terminal"
 	// "time" // or "runtime"
 )
@@ -18,30 +19,36 @@ var doCleanup bool
 var password []byte
 
 func argParse() {
-	// @TODO no default allowed
-	flag.StringVar(&file, "file", "", "Absolute path to file to encrypt")
-
+	fileFlag := flag.String("f", "", "Absolute path to file to encrypt")
 	tempDecryptFlag := flag.Bool("d", false, "Temporarily decrypt file, re-encrypt on exit")
 	forceDecryptFlag := flag.Bool("D", false, "Force decrypt file, show plaintext even after exit")
 	encryptFlag := flag.Bool("e", false, "Encrypt file")
 
 	flag.Parse()
 
+	if *fileFlag == "" {
+		// You need to have a file to do something
+		fmt.Println("File flag is required: -f")
+		os.Exit(1)
+	} else {
+		file = *fileFlag
+	}
+
 	if *forceDecryptFlag == true && *tempDecryptFlag == true {
 		// Trying to tempDecrypt and forceDecrypt at the same time!
-		fmt.Printf("-d and -D options are mutually exclusive")
+		fmt.Println("-d and -D options are mutually exclusive")
 		os.Exit(1)
 	} else if *encryptFlag == true && *tempDecryptFlag == true {
 		// Trying to encrypt and tempDecrypt at the same time!
-		fmt.Printf("-e and -d options are mutually exclusive")
+		fmt.Println("-e and -d options are mutually exclusive")
 		os.Exit(1)
 	} else if *encryptFlag == true && *forceDecryptFlag == true {
 		// Trying to encrypt and forceDecrypt at the same time!
-		fmt.Printf("-e and -D options are mutually exclusive")
+		fmt.Println("-e and -D options are mutually exclusive")
 		os.Exit(1)
 	} else if *encryptFlag == false && *tempDecryptFlag == false && *forceDecryptFlag == false {
 		// You need to do something!
-		fmt.Printf("-e or -d or -D option must be set")
+		fmt.Println("-e or -d or -D option must be set")
 		os.Exit(1)
 	} else if *encryptFlag == true {
 		encryptOrNot = true
@@ -56,45 +63,49 @@ func argParse() {
 
 // Blocking function to ask user for password
 func askPass(prompt1 string, prompt2 string) ([]byte, error) {
-	// XXX do the encryption
 	fmt.Printf(prompt1)
 	passwd, err := terminal.ReadPassword(syscall.Stdin)
-	// if err != nil {
-	// 	return
-	// }
+	if err != nil {
+		return nil, err
+	}
 	fmt.Printf("\n")
 
 	fmt.Printf(prompt2)
 	rpasswd, err := terminal.ReadPassword(syscall.Stdin)
-	// if err != nil {
-	// 	return
-	// }
+	if err != nil {
+		return nil, err
+	}
 	fmt.Printf("\n")
 
 	if bytes.Compare(passwd, rpasswd) != 0 {
-		err = fmt.Errorf("Passwords don't match\n")
+		err = fmt.Errorf("Passwords don't match")
 		return nil, err
 	}
 	return passwd, nil
 }
 
 func run() {
-
 	argParse()
 
 	if encryptOrNot == true {
 		// Encrypt
 		passwd, _ := askPass("Please enter the password to encrypt: ", "Re-type password: ")
-		fmt.Println("Encrypting...")
+		glog.V(2).Infof("Encrypting...")
 		encrypt(file, passwd)
+		// No need to cleanup - exit now
+		exit()
 	} else {
 		// Decrypt
 		passwd, _ := askPass("Please enter the password to decrypt: ", "Re-type password: ")
-		// Only save password in global if needed
+
 		if doCleanup {
+			// Setup handler to wait for exit to reencrypt
+			setupSigtermHandler()
+
+			// Only save password in global if needed
 			password = passwd
 		}
-		fmt.Println("Decrypting...")
+		glog.V(2).Infof("Decrypting...")
 		decrypt(file, passwd)
 	}
 }
@@ -107,17 +118,8 @@ func setupSigtermHandler() {
 	go func() {
 		<-c
 		cleanup()
-		os.Exit(0)
+		exit()
 	}()
-}
-
-func wait() {
-	fmt.Println("Sleeping...")
-	select {}
-	// for {
-	//     fmt.Println("Sleeping...")
-	//     time.Sleep(10 * time.Second) // or runtime.Gosched() or similar per @misterbee
-	// }
 }
 
 func cleanup() {
@@ -130,8 +132,24 @@ func cleanup() {
 	}
 }
 
+func wait() {
+	fmt.Println("Sleeping...")
+	select {}
+	// for {
+	//     fmt.Println("Sleeping...")
+	//     time.Sleep(10 * time.Second) // or runtime.Gosched() or similar per @misterbee
+	// }
+}
+
+func exit() {
+	// @TODO Could handle cleanup of sigtermHandler here for cleaner control loop
+	glog.Flush()
+	os.Exit(0)
+}
+
+// <--- End Control Loop --->
+
 func main() {
-	setupSigtermHandler()
 	run()
 	wait()
 }
