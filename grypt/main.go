@@ -104,6 +104,7 @@ func run() {
 
 			// Only save password in global if needed
 			password = passwd
+			wait()
 		}
 		glog.V(2).Infof("Decrypting...")
 		decrypt(file, passwd)
@@ -151,5 +152,4 @@ func exit() {
 
 func main() {
 	run()
-	wait()
 }
