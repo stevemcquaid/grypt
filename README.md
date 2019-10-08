@@ -1,4 +1,6 @@
-# Grypt: Encryption Utility in Golang
+# Grypt: Golang Encryption Utility
+
+An encryption utility that is a Work in Progress. Decryption is having issues at the moment
 
 ### Goal #1 - Protect secrets stored in public by providing easy-to-use strong encryption
   * Used in place of, or in combination with, [Veracrypt](https://en.wikipedia.org/wiki/VeraCrypt)
@@ -63,9 +65,9 @@ A few `make` targets have been provided for convienance in building the docker c
       myGreatProgram --config /path/to/secret/file      # Run my program using file now decrypted to plaintext
       kill $GRYPT_PID                                   # Kill grypt to automatically re-encrypt the file
       ```
-  - [ ] Multiple integration points:
+  - [x] Multiple integration points:
       - [x] Bash/filesystem
       - [x] Docker/filesystem
-      - [ ] Golang native hook
+      - [x] Golang library
 
     

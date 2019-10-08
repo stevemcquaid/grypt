@@ -11,6 +11,8 @@ import (
 	"github.com/golang/glog"
 	"golang.org/x/crypto/ssh/terminal"
 	// "time" // or "runtime"
+
+	"github.com/stevemcquaid/grypt/pkg/grypt"
 )
 
 var file string
@@ -91,7 +93,7 @@ func run() {
 		// Encrypt
 		passwd, _ := askPass("Please enter the password to encrypt: ", "Re-type password: ")
 		glog.V(2).Infof("Encrypting...")
-		encrypt(file, passwd)
+		grypt.Encrypt(file, passwd)
 		// No need to cleanup - exit now
 		exit()
 	} else {
@@ -107,7 +109,7 @@ func run() {
 			wait()
 		}
 		glog.V(2).Infof("Decrypting...")
-		decrypt(file, passwd)
+		grypt.Decrypt(file, passwd)
 	}
 }
 
@@ -126,7 +128,7 @@ func setupSigtermHandler() {
 func cleanup() {
 	if doCleanup {
 		fmt.Println("Starting cleanup...")
-		encrypt(file, password)
+		grypt.Encrypt(file, password)
 		fmt.Println("Completed cleanup.")
 	} else {
 		fmt.Println("No cleanup needed.")

@@ -1,4 +1,4 @@
-package main
+package grypt
 
 import (
 	"crypto/rand"
@@ -12,7 +12,7 @@ const (
 	HDR_PEM = "GRYPT MESSAGE"
 )
 
-func encrypt(file string, passwd []byte) (err error) {
+func Encrypt(file string, passwd []byte) (err error) {
 	ifile := file
 	ofile := file
 
@@ -46,7 +46,7 @@ func encrypt(file string, passwd []byte) (err error) {
 	return nil
 }
 
-func decrypt(file string, passwd []byte) (err error) {
+func Decrypt(file string, passwd []byte) (err error) {
 	ifile := file
 	ofile := file
 
